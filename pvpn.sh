@@ -128,9 +128,13 @@ function connect_vpn() {
         if [ "$conn_failed" -eq "0" ]; then
             output="$(echo -e "$output" | egrep -iv "setting up protonvpn|connecting to protonvpn|^$")"
             echo -e "$output"
-            exit $EXIT_CODE_UNHANDLED_ERROR
-        fi
 
+            #exit $EXIT_CODE_UNHANDLED_ERROR
+
+            # pass to try again
+            return -1
+        fi
+        
     fi
     
 }
