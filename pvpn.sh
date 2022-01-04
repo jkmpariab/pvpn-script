@@ -243,7 +243,7 @@ function connect() {
         else
             echo "cannot connect to server. try '$script_name g|gui'"
         fi
-        exit $EXIT_CODE_CONNECTION_ERRORCONNECTION_ERROR
+        exit $EXIT_CODE_CONNECTION_ERROR
     fi
   
     status
