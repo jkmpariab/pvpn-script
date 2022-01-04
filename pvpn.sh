@@ -30,6 +30,8 @@ function help() {
     echo -e "\tg, gui\t\t select server manually through cli gui"
     echo -e "\th, help\t\t show the help message"
     echo
+    echo -e "set \e[1mDEBUG\e[0m env variable to a non-zero value to running in debug mode"
+    echo
     echo -e "\e[1mExit Codes Definition:\e[0m"
     echo -e "\t$EXIT_CODE_PROTONVPN_NOT_INSTALLED => EXIT_CODE_PROTONVPN_NOT_INSTALLED"
     echo -e "\t$EXIT_CODE_CONNECTION_ERROR => EXIT_CODE_CONNECTION_ERROR"
@@ -103,7 +105,7 @@ function connect_vpn() {
     
     else
         ###########################################################################################################
-        if [ "$DEBUG" == "1" ]; then
+        if [ -n "$DEBUG" ]; then
             echo "[DEBUG] protonvpn-cli output on success:"
             echo -e "$output"
         fi
@@ -203,7 +205,7 @@ function connect() {
     fi
 
     ###########################################################################################################
-    if [ "$DEBUG" == "1" ]; then
+    if [ -n "$DEBUG" ]; then
         echo -e "[DEBUG] server: $server, protocol: $protocol, retry: $retry, connection args: $connection_args"
     fi
     ###########################################################################################################

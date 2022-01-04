@@ -13,6 +13,8 @@ COMMAND:
 	g, gui		 select server manually through cli gui
 	h, help		 show the help message
 
+set DEBUG env variable to a non-zero value to running in debug mode
+
 Exit Codes Definition:
 	1 => EXIT_CODE_PROTONVPN_NOT_INSTALLED
 	2 => EXIT_CODE_CONNECTION_ERROR
