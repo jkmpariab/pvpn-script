@@ -49,36 +49,31 @@ function install_guide() {
     echo -e "\"https://protonvpn.com/download-linux\""
 }
 
-function status() {
-    protonvpn-cli s 2>/dev/null
-    if [ "$?" -eq "127" ]; then
+function handle_127_exit_code() {
+    if [ "$1" -eq "127" ]; then
         install_guide
         exit $EXIT_CODE_PROTONVPN_NOT_INSTALLED
     fi
+}
+
+function status() {
+    protonvpn-cli s 2>/dev/null
+    handle_127_exit_code "$?"
 }
 
 function gui() {
     protonvpn-cli c 2>/dev/null
-    if [ "$?" -eq "127" ]; then
-        install_guide
-        exit $EXIT_CODE_PROTONVPN_NOT_INSTALLED
-    fi
+    handle_127_exit_code "$?"
 }
 
 function disconnect() {
     protonvpn-cli d 2>/dev/null
-    if [ "$?" -eq "127" ]; then
-        install_guide
-        exit $EXIT_CODE_PROTONVPN_NOT_INSTALLED
-    fi
+    handle_127_exit_code "$?"
 }
 
 function reconnect() {
     protonvpn-cli r 2>/dev/null
-    if [ "$?" -eq "127" ]; then
-        install_guide
-        exit $EXIT_CODE_PROTONVPN_NOT_INSTALLED
-    fi
+    handle_127_exit_code "$?"
 }
 
 function connect_vpn() {
@@ -87,10 +82,7 @@ function connect_vpn() {
 
     if [ "$result" -ne "0" ]; then
         
-        if [ "$result" -eq "127" ]; then
-            install_guide
-            exit $EXIT_CODE_PROTONVPN_NOT_INSTALLED
-        fi
+        handle_127_exit_code "$result"
 
         echo "$output" | egrep -i 'failed' >/dev/null 2>&1
         local conn_failed="$?"
