@@ -112,10 +112,8 @@ function connect_vpn() {
     else
         ###########################################################################################################
         if [ "$DEBUG" == "1" ]; then
-            echo "###################################################################################"
-            echo "DEBUG: protonvpn-cli output on success:"
+            echo "[DEBUG] protonvpn-cli output on success:"
             echo -e "$output"
-            echo "###################################################################################"
         fi
         ###########################################################################################################
 
@@ -214,9 +212,7 @@ function connect() {
 
     ###########################################################################################################
     if [ "$DEBUG" == "1" ]; then
-        echo "###################################################################################"
-        echo -e "DEBUG: server: $server, protocol: $protocol, retry: $retry, connection args: $connection_args"
-        echo "###################################################################################"
+        echo -e "[DEBUG] server: $server, protocol: $protocol, retry: $retry, connection args: $connection_args"
     fi
     ###########################################################################################################
 
@@ -253,7 +249,7 @@ function connect() {
         else
             echo "cannot connect to server. try '$script_name g|gui'"
         fi
-        exit $EXIT_CODE_CONNECTION_ERROR
+        exit $EXIT_CODE_CONNECTION_ERRORCONNECTION_ERROR
     fi
   
     status
