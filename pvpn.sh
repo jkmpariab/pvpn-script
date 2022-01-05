@@ -2,6 +2,9 @@
 
 DEFAULT_RETRY=3
 
+PVPN_SCRIPT_NAME="$(basename ${BASH_SOURCE:-$0})"
+CONNECT_COMMAND_DESCRIPTION="connect to SERVER (default to fastest server)"
+
 EXIT_CODE_PROTONVPN_NOT_INSTALLED=1
 EXIT_CODE_CONNECTION_ERROR=2
 EXIT_CODE_INVALID_COMMAND=3
@@ -13,24 +16,30 @@ EXIT_CODE_FLAG_SET_WITH_NO_VALUE=8
 EXIT_CODE_TERMINATED_BY_USER=9
 EXIT_CODE_UNHANDLED_ERROR=10
 
-function intro() {
+function print_intro() {
     echo "protonvpn-cli with retry functionality"
 }
 
-function help() {
-    echo -e "Usage: \e[1m$(basename ${BASH_SOURCE:-$0})\e[0m [\e[1mCOMMAND\e[0m (default to 'c' or 'connect')]"
+function print_usage_and_commands() {
+    echo -e "Usage: \e[1m$PVPN_SCRIPT_NAME\e[0m [\e[1mCOMMAND\e[0m (default to 'c' or 'connect')]"
     echo
     echo -e "\e[1mCOMMAND:\e[0m"
-    echo -e "\tc, connect [\e[1mSERVER\e[0m] [\e[1mRETRY\e[0m]"
-    echo -e "\t\t\t connect to \e[1mSERVER\e[0m (default to fastest server) with optinal \e[1mRETRY\e[0m (defaul to $DEFAULT_RETRY) retries on failure."
-    echo -e "\t\t\t \e[1mSERVER:\e[0m directly connect to specified server (ie: CH#4, CH-US-1, HK5-Tor)."
+    echo -e "\tc, connect [-p|--protocol|-r|--retry] [SERVER]"
+    echo -e "\t\t\t $CONNECT_COMMAND_DESCRIPTION."
+    echo -e "\t\t\t Use '$PVPN_SCRIPT_NAME connect --help' to know more specific arguments"
     echo -e "\td, disconnect\t disconnect from vpn"
     echo -e "\tr, reconnect\t reconnect to previously connected server"
     echo -e "\ts, status\t connection status"
     echo -e "\tg, gui\t\t select server manually through cli gui"
     echo -e "\th, help\t\t show the help message"
+}
+
+function print_help() {
+    print_intro
     echo
-    echo -e "set \e[1mDEBUG\e[0m env variable to a non-zero value to running in debug mode"
+    print_usage_and_commands
+    echo
+    echo -e "set \e[1mDEBUG\e[0m env variable to a non-zero value to running in debug mode."
     echo
     echo -e "\e[1mExit Codes Definition:\e[0m"
     echo -e "\t$EXIT_CODE_PROTONVPN_NOT_INSTALLED => EXIT_CODE_PROTONVPN_NOT_INSTALLED"
@@ -45,15 +54,25 @@ function help() {
     echo -e "\t$EXIT_CODE_UNHANDLED_ERROR => EXIT_CODE_UNHANDLED_ERROR"
 }
 
-function install_guide() {
+function print_connect_help() {
+    echo -e "Usage: $PVPN_SCRIPT_NAME \e[1mconnect\e[0m [ARGS] [SERVER]"
+    echo -e "$CONNECT_COMMAND_DESCRIPTION"
+    echo
+    echo -e "\e[1mSERVER\e[0m:\n\tconnect to specified server (ie: CH#4, CH-US-1, HK5-Tor)"
+    echo -e "\e[1mARGS\e[0m:"
+    echo -e "\t-p, --protocol\t connect via specified protocol (possible values: tcp|udp)"
+    echo -e "\t-r, --retry\t connect with -r|--retry retries on failure (defaul to $DEFAULT_RETRY)"
+}
+
+function print_install_guide() {
     echo "Looks like 'ProtonVPN' is not install on your system."
     echo -n "To install 'ProtonVPN', open this link on your web browser: "
-    echo -e "\"https://protonvpn.com/download-linux\""
+    echo -e "'https://protonvpn.com/download-linux'"
 }
 
 function handle_127_exit_code() {
     if [ "$1" -eq "127" ]; then
-        install_guide
+        print_install_guide
         exit $EXIT_CODE_PROTONVPN_NOT_INSTALLED
     fi
 }
@@ -104,6 +123,10 @@ function connect_vpn() {
         fi
     
     else
+        #
+        # protonvpn-cli bug that fail to connect but exit with zero code :(
+        #        
+        
         ###########################################################################################################
         if [ -n "$DEBUG" ]; then
             echo "[DEBUG] protonvpn-cli output on success:"
@@ -111,20 +134,18 @@ function connect_vpn() {
         fi
         ###########################################################################################################
 
-        #
-        # A protonvpn-cli bug that fail to connect but exit with zero code :(
-        #
-        echo "$output" | egrep -i 'unable to connect to protonvpn' >/dev/null 2>&1
-        local conn_failed="$?"
+        echo "$output" | egrep -i 'unable to connect to protonvpn|an unknown error has occured' >/dev/null 2>&1
+        local unhandled_error="$?"
 
-        if [ "$conn_failed" -eq "0" ]; then
+        if [ "$unhandled_error" -eq "0" ]; then
             output="$(echo -e "$output" | egrep -iv "setting up protonvpn|connecting to protonvpn|^$")"
             echo -e "$output"
 
-            #exit $EXIT_CODE_UNHANDLED_ERROR
-
             # pass to try again
-            return -1
+            #return -1
+
+            echo -e "unhandled 'protonvpn-cli' backend error happend.\nfor more details run '$PVPN_SCRIPT_NAME' in debug mode."
+            exit $EXIT_CODE_UNHANDLED_ERROR
         fi
         
     fi
@@ -146,11 +167,14 @@ function connect() {
             -p | --protocol)
                 if [ -n "$protocol" ]; then
                     echo "error: '-p|--protocol' flag set twice"
+                    echo
+                    print_connect_help
                     exit $EXIT_CODE_FLAG_SET_TWICE
                 fi
                 if [ -z "$2" ]; then
                     echo "error: '-p|--protocol' flag set but no protocol specified"
-                    help
+                    echo
+                    print_connect_help
                     exit $EXIT_CODE_FLAG_SET_WITH_NO_VALUE
                 fi
                 shift
@@ -159,15 +183,22 @@ function connect() {
             -r | --retry)
                 if [ -n "$retry" ]; then
                     echo "error: '-r|--retry' flag set twice"
+                    echo
+                    print_connect_help
                     exit $EXIT_CODE_FLAG_SET_TWICE
                 fi
                 if [ -z "$2" ]; then
                     echo "error: '-r|--retry' flag set but no value specified"
-                    help
+                    echo
+                    print_connect_help
                     exit $EXIT_CODE_FLAG_SET_WITH_NO_VALUE
                 fi
                 shift
                 retry="$1"
+            ;;
+            -h | --help)
+                print_connect_help
+                exit 0
             ;;
             *)
                 if [ -n "$server" ]; then
@@ -182,7 +213,9 @@ function connect() {
     if [ -z "$protocol" ]; then
         protocol="udp"    
     elif [ "$protocol" != "udp" ] && [ "$protocol" != "tcp" ]; then
-        echo "error: invalid protocol $protocol"
+        echo "error: invalid protocol '$protocol'"
+        echo
+        print_connect_help
         exit $EXIT_CODE_INVALID_PROTOCOL
     fi
       
@@ -191,10 +224,12 @@ function connect() {
     fi
     if ! expr 1 + "$retry" >/dev/null 2>&1; then
         echo "error: invalid retry value '$retry'"
+        echo
+        print_connect_help
         exit $EXIT_CODE_INVALID_RETRY_VALUE 
     fi
     if [ "$retry" -lt 0 ]; then
-        echo -ne "invalid retry value '$retry'. default to '$DEFAULT_RETRY'...\r"
+        echo -e "negative retry value '$retry'. default to '$DEFAULT_RETRY'..."
         retry="$DEFAULT_RETRY"
     fi
 
@@ -287,14 +322,12 @@ case "$1" in
       status
       ;;
   h | help | -h | --help)
-      intro
-      echo
-      help
+      print_help
       ;;
   *)
-      echo "invalid command \"$1\""
+      echo "invalid command '$1'"
       echo
-      help 
+      print_usage_and_commands
       exit $EXIT_CODE_INVALID_COMMAND
       ;;
 esac
