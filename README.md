@@ -4,16 +4,16 @@ protonvpn-cli with retry functionality
 Usage: pvpn.sh [COMMAND (default to 'c' or 'connect')]
 
 COMMAND:
-	c, connect [SERVER] [RETRY]
-			 connect to SERVER (default to fastest server) with optinal RETRY (defaul to 3) retries on failure.
-			 SERVER: directly connect to specified server (ie: CH#4, CH-US-1, HK5-Tor).
+	c, connect [-p|--protocol|-r|--retry] [SERVER]
+			 connect to SERVER (default to fastest server).
+			 Use 'pvpn.sh connect --help' to know more specific arguments
 	d, disconnect	 disconnect from vpn
 	r, reconnect	 reconnect to previously connected server
 	s, status	 connection status
 	g, gui		 select server manually through cli gui
 	h, help		 show the help message
 
-set DEBUG env variable to a non-zero value to running in debug mode
+set DEBUG env variable to a non-zero value to running in debug mode.
 
 Exit Codes Definition:
 	1 => EXIT_CODE_PROTONVPN_NOT_INSTALLED
