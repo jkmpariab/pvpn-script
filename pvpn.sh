@@ -60,8 +60,8 @@ function print_connect_help() {
     echo
     echo -e "\e[1mSERVER\e[0m:\n\tconnect to specified server (ie: CH#4, CH-US-1, HK5-Tor)"
     echo -e "\e[1mARGS\e[0m:"
-    echo -e "\t-p, --protocol\t connect via specified protocol (possible values: tcp|udp)"
-    echo -e "\t-r, --retry\t connect with -r|--retry retries on failure (defaul to $DEFAULT_RETRY)"
+    echo -e "\t-p, --protocol PROTO\t connect via PROTO protocol (possible values: tcp|udp)"
+    echo -e "\t-r, --retry N\t\t retry N times before giving up to connect (defaul to $DEFAULT_RETRY)"
 }
 
 function print_install_guide() {
