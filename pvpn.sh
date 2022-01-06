@@ -234,7 +234,7 @@ function connect() {
     fi
 
     if [ -z "$server" ]; then
-        connection_args="-f"
+        connection_args="-f -p $protocol"
     else
         connection_args="$server -p $protocol"
     fi
