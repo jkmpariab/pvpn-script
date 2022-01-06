@@ -10,7 +10,7 @@ COMMAND:
 	d, disconnect	 disconnect from vpn
 	r, reconnect	 reconnect to previously connected server
 	s, status	 connection status
-	g, gui		 select server manually through cli gui
+	n, select	 select server manually through ncurses-ui
 	h, help		 show the help message
 
 set DEBUG env variable to a non-zero value to running in debug mode.

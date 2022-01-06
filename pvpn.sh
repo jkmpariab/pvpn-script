@@ -30,7 +30,7 @@ function print_usage_and_commands() {
     echo -e "\td, disconnect\t disconnect from vpn"
     echo -e "\tr, reconnect\t reconnect to previously connected server"
     echo -e "\ts, status\t connection status"
-    echo -e "\tg, gui\t\t select server manually through cli gui"
+    echo -e "\tn, select\t select server manually through ncurses-ui"
     echo -e "\th, help\t\t show the help message"
 }
 
@@ -82,7 +82,7 @@ function status() {
     handle_127_exit_code "$?"
 }
 
-function gui() {
+function select_() {
     protonvpn-cli c 2>/dev/null
     handle_127_exit_code "$?"
 }
@@ -315,8 +315,8 @@ case "$1" in
   r | reconnect)
       reconnect
       ;;
-  g | gui)
-      gui
+  n | select)
+      select_
       ;;
   s | status)
       status
