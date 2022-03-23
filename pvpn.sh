@@ -222,7 +222,7 @@ function connect() {
     if [ -z "$retry" ]; then
         retry="$DEFAULT_RETRY"
     fi
-    if ! expr 1 + "$retry" >/dev/null 2>&1; then
+    if ! echo "$retry" | egrep -q '^[0-9]+$'; then
         echo "error: invalid retry value '$retry'"
         echo
         print_connect_help
