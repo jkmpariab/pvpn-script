@@ -278,9 +278,9 @@ function connect() {
     if [ "$result" -ne 0 ]; then
         script_name="$(basename ${BASH_SOURCE[0]:-$0})"
         if [ "$retry" -gt 0 ]; then
-            echo "cannot connect to server (retried $retry times). try '$script_name g|gui'"
+            echo "cannot connect to server (retried $retry times). try '$script_name n|select'"
         else
-            echo "cannot connect to server. try '$script_name g|gui'"
+            echo "cannot connect to server. try '$script_name n|select'"
         fi
         exit $EXIT_CODE_CONNECTION_ERROR
     fi
