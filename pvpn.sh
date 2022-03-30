@@ -127,12 +127,12 @@ function connect_vpn() {
         # protonvpn-cli bug that fail to connect but exit with zero code :(
         #        
         
-        ###########################################################################################################
+        ###################################################
         if [ -n "$DEBUG" ]; then
             echo "[DEBUG] protonvpn-cli output on success:"
             echo -e "$output"
         fi
-        ###########################################################################################################
+        ###################################################
 
         echo "$output" | egrep -i 'unable to connect to protonvpn|an unknown error has occured' >/dev/null 2>&1
         local unhandled_error="$?"
@@ -141,8 +141,12 @@ function connect_vpn() {
             output="$(echo -e "$output" | egrep -iv "setting up protonvpn|connecting to protonvpn|^$")"
             echo -e "$output"
 
-            # pass to try again
-            #return -1
+            ############################################
+            if [ -n "$DEBUG" ]; then
+                echo "[DEBUG] retrying..."
+                return -1
+            fi
+            ###########################################
 
             echo -e "unhandled 'protonvpn-cli' backend error happend.\nfor more details run '$PVPN_SCRIPT_NAME' in debug mode."
             exit $EXIT_CODE_UNHANDLED_ERROR
